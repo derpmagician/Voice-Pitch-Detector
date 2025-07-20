@@ -88,7 +88,63 @@ body {
 .subtitle {
     font-size: 1.1rem;
     color: var(--text-secondary);
-    margin-bottom: 0;
+    margin-bottom: var(--spacing-md);
+}
+
+/* ===== NAVEGACIÓN DE TESTS ===== */
+.test-navigation {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--bg-tertiary);
+}
+
+.test-navigation h4 {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+    text-align: center;
+    font-weight: 600;
+}
+
+.test-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--spacing-sm);
+}
+
+.test-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all var(--transition-fast);
+    min-height: 36px;
+}
+
+.test-link:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.test-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.test-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* ===== PANEL DE CONTROL ===== */
@@ -494,6 +550,17 @@ select {
         font-size: 2rem;
     }
     
+    .test-links {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-xs);
+    }
+    
+    .test-link {
+        font-size: 0.8rem;
+        padding: var(--spacing-xs);
+        min-height: 32px;
+    }
+    
     .main-controls {
         flex-direction: column;
         align-items: center;
@@ -527,6 +594,14 @@ select {
     
     .app-header h1 {
         font-size: 1.8rem;
+    }
+    
+    .test-links {
+        grid-template-columns: 1fr;
+    }
+    
+    .test-navigation h4 {
+        font-size: 0.9rem;
     }
     
     .frequency-display span,
