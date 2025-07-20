@@ -1,0 +1,322 @@
+/* ===== ESTILOS ESPECÍFICOS PARA EL MEDIDOR VISUAL ===== */
+
+/* Contenedor del medidor de pitch */
+.pitch-meter-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+}
+
+/* Canvas del medidor (será agregado dinámicamente) */
+.pitch-meter-container canvas {
+    border: 3px solid var(--bg-tertiary);
+    border-radius: 50%;
+    box-shadow: var(--shadow-lg);
+    transition: all var(--transition-normal);
+}
+
+.pitch-meter-container canvas:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 20px rgba(33, 150, 243, 0.3);
+}
+
+/* Medidor circular personalizado */
+.circular-meter {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        var(--error-color) 0deg,
+        var(--error-color) 60deg,
+        var(--secondary-color) 60deg,
+        var(--secondary-color) 120deg,
+        var(--success-color) 120deg,
+        var(--success-color) 180deg,
+        var(--secondary-color) 180deg,
+        var(--secondary-color) 240deg,
+        var(--error-color) 240deg,
+        var(--error-color) 360deg
+    );
+    padding: 10px;
+    box-shadow: var(--shadow-lg);
+}
+
+.meter-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Aguja del medidor */
+.meter-needle {
+    position: absolute;
+    width: 4px;
+    height: 40%;
+    background: linear-gradient(to top, transparent, var(--text-primary));
+    border-radius: 2px;
+    transform-origin: bottom center;
+    transform: rotate(0deg);
+    transition: transform var(--transition-fast);
+    z-index: 10;
+}
+
+.meter-needle::before {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 16px;
+    background: var(--text-primary);
+    border-radius: 50%;
+    border: 3px solid var(--bg-secondary);
+}
+
+/* Marcas del medidor */
+.meter-marks {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+.meter-mark {
+    position: absolute;
+    width: 2px;
+    height: 15px;
+    background: var(--text-secondary);
+    transform-origin: bottom center;
+}
+
+.meter-mark.major {
+    width: 3px;
+    height: 20px;
+    background: var(--text-primary);
+}
+
+/* Etiquetas del medidor */
+.meter-labels {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+.meter-label {
+    position: absolute;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    transform: translate(-50%, -50%);
+}
+
+/* Indicador de zona */
+.meter-zones {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    opacity: 0.3;
+}
+
+.zone-exact {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, var(--success-color), transparent);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse-success 2s infinite;
+}
+
+.zone-close {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, var(--secondary-color), transparent);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse-warning 3s infinite;
+}
+
+/* Display de información del medidor */
+.meter-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+    width: 100%;
+    max-width: 400px;
+    margin-top: var(--spacing-md);
+}
+
+.meter-info-item {
+    background: var(--bg-tertiary);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    text-align: center;
+}
+
+.meter-info-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.meter-info-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+/* Estados del medidor */
+.meter-container.detecting .circular-meter {
+    animation: detecting-pulse 1s infinite;
+}
+
+.meter-container.in-tune .meter-needle {
+    color: var(--success-color);
+    filter: drop-shadow(0 0 5px var(--success-color));
+}
+
+.meter-container.close-tune .meter-needle {
+    color: var(--secondary-color);
+    filter: drop-shadow(0 0 5px var(--secondary-color));
+}
+
+.meter-container.off-tune .meter-needle {
+    color: var(--error-color);
+    filter: drop-shadow(0 0 5px var(--error-color));
+}
+
+/* Visualización de espectro (opcional) */
+.spectrum-display {
+    width: 100%;
+    max-width: 400px;
+    height: 60px;
+    background: var(--bg-tertiary);
+    border-radius: var(--border-radius);
+    margin-top: var(--spacing-md);
+    overflow: hidden;
+    position: relative;
+}
+
+.spectrum-bar {
+    position: absolute;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to top, var(--primary-color), var(--secondary-color));
+    transition: height var(--transition-fast);
+}
+
+/* Animaciones */
+@keyframes detecting-pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.02);
+        opacity: 0.9;
+    }
+}
+
+@keyframes pulse-success {
+    0%, 100% {
+        opacity: 0.3;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+@keyframes pulse-warning {
+    0%, 100% {
+        opacity: 0.2;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        opacity: 0.4;
+        transform: translate(-50%, -50%) scale(1.05);
+    }
+}
+
+/* Controles específicos del medidor */
+.meter-controls {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.meter-control {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background: var(--bg-tertiary);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+}
+
+.meter-control label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.meter-control input[type="range"] {
+    width: 80px;
+}
+
+/* Responsive design para el medidor */
+@media (max-width: 768px) {
+    .pitch-meter-container canvas,
+    .circular-meter {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .meter-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .meter-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .meter-control {
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 480px) {
+    .pitch-meter-container canvas,
+    .circular-meter {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .spectrum-display {
+        height: 40px;
+    }
+}

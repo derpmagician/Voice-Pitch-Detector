@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Detector de Voz</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #1a1a1a;
+            color: white;
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 10px; 
+            font-size: 16px;
+        }
+        #status {
+            background: #2d2d2d;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .enabled { background: #4CAF50; color: white; }
+        .disabled { background: #666; color: #ccc; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test de Diagnóstico</h1>
+    
+    <div id="status">
+        <p>Estado: <span id="statusText">Cargando...</span></p>
+        <p>Botón habilitado: <span id="buttonStatus">Verificando...</span></p>
+    </div>
+
+    <button id="testBtn" class="disabled">Test Button</button>
+    <button onclick="requestPermissions()">Solicitar Permisos</button>
+    
+    <div id="log"></div>
+
+    <script>
+        console.log('🚀 Iniciando test de diagnóstico...');
+        
+        let testState = {
+            isInitialized: false,
+            hasPermissions: false
+        };
+        
+        const testBtn = document.getElementById('testBtn');
+        const statusText = document.getElementById('statusText');
+        const buttonStatus = document.getElementById('buttonStatus');
+        const log = document.getElementById('log');
+        
+        function updateLog(message) {
+            log.innerHTML += `<p>${new Date().toLocaleTimeString()}: ${message}</p>`;
+            console.log(message);
+        }
+        
+        function updateUI() {
+            const shouldEnable = testState.isInitialized;
+            testBtn.disabled = !shouldEnable;
+            testBtn.className = shouldEnable ? 'enabled' : 'disabled';
+            buttonStatus.textContent = shouldEnable ? 'Habilitado' : 'Deshabilitado';
+            
+            updateLog(`UI actualizada - Inicializado: ${testState.isInitialized}, Permisos: ${testState.hasPermissions}, Botón: ${shouldEnable ? 'Habilitado' : 'Deshabilitado'}`);
+        }
+        
+        async function requestPermissions() {
+            try {
+                updateLog('Solicitando permisos...');
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach(track => track.stop());
+                
+                testState.hasPermissions = true;
+                updateLog('✅ Permisos concedidos');
+                updateUI();
+                
+            } catch (error) {
+                updateLog(`❌ Error de permisos: ${error.message}`);
+                testState.hasPermissions = false;
+                updateUI();
+            }
+        }
+        
+        // Simular inicialización
+        setTimeout(() => {
+            updateLog('Inicializando aplicación test...');
+            testState.isInitialized = true;
+            statusText.textContent = 'Inicializado';
+            updateUI();
+            updateLog('✅ Test inicializado');
+        }, 1000);
+        
+        testBtn.addEventListener('click', () => {
+            updateLog('🎯 Test button clicked!');
+            alert('¡Botón funcionando correctamente!');
+        });
+        
+        updateLog('Test page loaded');
+    </script>
+</body>
+</html>

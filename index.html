@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detector de Voz y Notas Musicales</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/meter.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>🎵 Detector de Voz y Notas</h1>
+            <p class="subtitle">Detecta tu voz en tiempo real y ve si alcanzas las notas musicales</p>
+        </header>
+
+        <!-- Control Panel -->
+        <section class="control-panel">
+            <div class="main-controls">
+                <button id="startBtn" class="btn btn-primary">
+                    <span class="btn-icon">🎤</span>
+                    <span class="btn-text">Iniciar Detección</span>
+                </button>
+                <button id="stopBtn" class="btn btn-secondary" disabled>
+                    <span class="btn-icon">⏹️</span>
+                    <span class="btn-text">Parar</span>
+                </button>
+            </div>
+            
+            <div class="settings-panel">
+                <div class="setting-item">
+                    <label for="sensitivity">Sensibilidad:</label>
+                    <input type="range" id="sensitivity" min="0.1" max="2.0" value="1.0" step="0.1">
+                    <span id="sensitivityValue">1.0</span>
+                </div>
+                
+                <div class="setting-item">
+                    <label for="octaveRange">Rango de Octavas:</label>
+                    <select id="octaveRange">
+                        <option value="3-5">Octavas 3-5</option>
+                        <option value="2-6" selected>Octavas 2-6</option>
+                        <option value="1-7">Octavas 1-7</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Status Display -->
+        <section class="status-section">
+            <div class="status-indicator">
+                <div id="statusLight" class="status-light"></div>
+                <span id="statusText">Listo para comenzar</span>
+            </div>
+            <div class="mic-permission" id="micPermission" style="display: none;">
+                <p>⚠️ Se necesitan permisos de micrófono para funcionar</p>
+                <button id="requestPermissionBtn" class="btn btn-warning">Solicitar Permisos</button>
+            </div>
+        </section>
+
+        <!-- Main Visualization Area -->
+        <main class="visualization-area">
+            <!-- Pitch Meter -->
+            <section class="meter-section">
+                <h2>Medidor de Tono</h2>
+                <div id="pitchMeter" class="pitch-meter-container">
+                    <canvas id="pitchMeterCanvas" width="400" height="400" style="max-width: 100%; height: auto;"></canvas>
+                    <div class="meter-info">
+                        <div class="frequency-display">
+                            <span id="currentFrequency">0</span> Hz
+                        </div>
+                        <div class="note-display">
+                            <span id="currentNote">--</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notes Panel -->
+            <section class="notes-section">
+                <h2>Notas Musicales</h2>
+                <div class="notes-panel" id="notesPanel">
+                    <div class="note-item" data-note="C">
+                        <div class="note-button">Do</div>
+                        <div class="note-frequency">261.63 Hz</div>
+                    </div>
+                    <div class="note-item" data-note="D">
+                        <div class="note-button">Re</div>
+                        <div class="note-frequency">293.66 Hz</div>
+                    </div>
+                    <div class="note-item" data-note="E">
+                        <div class="note-button">Mi</div>
+                        <div class="note-frequency">329.63 Hz</div>
+                    </div>
+                    <div class="note-item" data-note="F">
+                        <div class="note-button">Fa</div>
+                        <div class="note-frequency">349.23 Hz</div>
+                    </div>
+                    <div class="note-item" data-note="G">
+                        <div class="note-button">Sol</div>
+                        <div class="note-frequency">392.00 Hz</div>
+                    </div>
+                    <div class="note-item" data-note="A">
+                        <div class="note-button">La</div>
+                        <div class="note-frequency">440.00 Hz</div>
+                    </div>
+                    <div class="note-item" data-note="B">
+                        <div class="note-button">Si</div>
+                        <div class="note-frequency">493.88 Hz</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Precision Indicator -->
+            <section class="precision-section">
+                <h3>Precisión</h3>
+                <div class="precision-meter">
+                    <div class="precision-bar">
+                        <div id="precisionIndicator" class="precision-indicator"></div>
+                    </div>
+                    <div class="precision-labels">
+                        <span class="label-far">Lejos</span>
+                        <span class="label-close">Cerca</span>
+                        <span class="label-exact">Exacto</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Error Display -->
+        <div id="errorDisplay" class="error-display" style="display: none;">
+            <div class="error-content">
+                <h3>Error</h3>
+                <p id="errorMessage"></p>
+                <button id="dismissError" class="btn btn-secondary">Cerrar</button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Detector de Voz y Notas Musicales - Versión 1.0</p>
+            <p>Compatible con Chrome, Firefox, Safari y Edge</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/app.js"></script>
+    <script src="js/audioCapture.js"></script>
+    <script src="js/pitchDetector.js"></script>
+    <script src="js/noteMapper.js"></script>
+    <script src="js/visualMeter.js"></script>
+    <script src="js/noteDisplay.js"></script>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Captura de Audio - Fase 2</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        .test-panel {
+            background: #2d2d2d;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #404040;
+        }
+        
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #1976D2;
+        }
+        
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: #404040;
+        }
+        
+        .data-display {
+            font-family: monospace;
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .visualization {
+            width: 100%;
+            height: 100px;
+            background: #1a1a1a;
+            border: 1px solid #404040;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎤 Test de Captura de Audio - Fase 2</h1>
+    
+    <div class="test-panel">
+        <h2>Control de Prueba</h2>
+        <button id="startTest" onclick="startAudioTest()">Iniciar Test</button>
+        <button id="stopTest" onclick="stopAudioTest()" disabled>Detener Test</button>
+        <button id="getStatus" onclick="showStatus()">Ver Estado</button>
+        <button id="clearLog" onclick="clearLog()">Limpiar Log</button>
+    </div>
+    
+    <div class="test-panel">
+        <h2>Estado del Sistema</h2>
+        <div id="statusDisplay" class="status">
+            Listo para comenzar...
+        </div>
+    </div>
+    
+    <div class="test-panel">
+        <h2>Datos de Audio en Tiempo Real</h2>
+        <div>
+            <strong>Frecuencia Dominante:</strong> <span id="frequency">0</span> Hz
+        </div>
+        <div>
+            <strong>Volumen:</strong> <span id="volume">0</span>
+        </div>
+        <div>
+            <strong>Buffer Length:</strong> <span id="bufferLength">0</span>
+        </div>
+        <div>
+            <strong>Sample Rate:</strong> <span id="sampleRate">0</span> Hz
+        </div>
+    </div>
+    
+    <div class="test-panel">
+        <h2>Visualización de Frecuencias</h2>
+        <canvas id="frequencyCanvas" class="visualization" width="780" height="100"></canvas>
+    </div>
+    
+    <div class="test-panel">
+        <h2>Log de Eventos</h2>
+        <div id="logDisplay" class="data-display"></div>
+    </div>
+
+    <script src="js/audioCapture.js"></script>
+    <script>
+        let audioCapture = null;
+        let animationId = null;
+        let logCount = 0;
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDisplay = document.getElementById('logDisplay');
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : '📝';
+            
+            logDisplay.textContent += `${prefix} [${timestamp}] ${message}\n`;
+            logDisplay.scrollTop = logDisplay.scrollHeight;
+            
+            if (++logCount > 100) {
+                // Mantener solo las últimas 100 líneas
+                const lines = logDisplay.textContent.split('\n');
+                logDisplay.textContent = lines.slice(-50).join('\n');
+                logCount = 50;
+            }
+        }
+        
+        function updateStatus(message, type = 'info') {
+            const statusDisplay = document.getElementById('statusDisplay');
+            statusDisplay.textContent = message;
+            statusDisplay.style.background = type === 'error' ? '#F44336' : 
+                                          type === 'success' ? '#4CAF50' : 
+                                          type === 'warning' ? '#FF9800' : '#404040';
+        }
+        
+        async function startAudioTest() {
+            try {
+                log('Iniciando test de captura de audio...');
+                updateStatus('Iniciando...', 'warning');
+                
+                document.getElementById('startTest').disabled = true;
+                
+                // Crear nueva instancia de AudioCapture
+                audioCapture = new AudioCapture();
+                
+                log('Inicializando captura de audio...');
+                await audioCapture.initialize();
+                
+                log('Iniciando captura de datos...', 'success');
+                audioCapture.startCapture();
+                
+                // Iniciar visualización en tiempo real
+                startVisualization();
+                
+                document.getElementById('stopTest').disabled = false;
+                updateStatus('Captura de audio activa', 'success');
+                log('Test iniciado correctamente', 'success');
+                
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                updateStatus(`Error: ${error.message}`, 'error');
+                document.getElementById('startTest').disabled = false;
+            }
+        }
+        
+        async function stopAudioTest() {
+            try {
+                log('Deteniendo test de captura de audio...');
+                
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                
+                if (audioCapture) {
+                    audioCapture.stopAudioCapture();
+                    await audioCapture.cleanup();
+                    audioCapture = null;
+                }
+                
+                document.getElementById('startTest').disabled = false;
+                document.getElementById('stopTest').disabled = true;
+                
+                updateStatus('Test detenido');
+                log('Test detenido correctamente', 'success');
+                
+                // Limpiar displays
+                document.getElementById('frequency').textContent = '0';
+                document.getElementById('volume').textContent = '0';
+                document.getElementById('bufferLength').textContent = '0';
+                document.getElementById('sampleRate').textContent = '0';
+                
+            } catch (error) {
+                log(`Error al detener: ${error.message}`, 'error');
+            }
+        }
+        
+        function startVisualization() {
+            const canvas = document.getElementById('frequencyCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            function animate() {
+                if (!audioCapture || !audioCapture.isCapturing) return;
+                
+                const audioData = audioCapture.getAudioData();
+                if (audioData) {
+                    // Actualizar datos numéricos
+                    document.getElementById('frequency').textContent = 
+                        Math.round(audioData.dominantFrequency);
+                    document.getElementById('volume').textContent = 
+                        (audioData.volume * 100).toFixed(1) + '%';
+                    document.getElementById('bufferLength').textContent = 
+                        audioData.bufferLength;
+                    document.getElementById('sampleRate').textContent = 
+                        audioData.sampleRate;
+                    
+                    // Visualizar espectro de frecuencias
+                    drawFrequencySpectrum(ctx, audioData.frequencyData);
+                }
+                
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+        
+        function drawFrequencySpectrum(ctx, frequencyData) {
+            const canvas = ctx.canvas;
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Limpiar canvas
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Dibujar espectro
+            const barWidth = width / frequencyData.length;
+            
+            for (let i = 0; i < frequencyData.length; i++) {
+                const barHeight = (frequencyData[i] / 255) * height;
+                
+                // Color basado en la frecuencia
+                const hue = (i / frequencyData.length) * 360;
+                ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                
+                ctx.fillRect(i * barWidth, height - barHeight, barWidth - 1, barHeight);
+            }
+        }
+        
+        function showStatus() {
+            if (audioCapture) {
+                const status = audioCapture.getStatus();
+                log(`Estado actual: ${JSON.stringify(status, null, 2)}`);
+            } else {
+                log('AudioCapture no está inicializado');
+            }
+        }
+        
+        function clearLog() {
+            document.getElementById('logDisplay').textContent = '';
+            logCount = 0;
+        }
+        
+        // Limpiar al cerrar la página
+        window.addEventListener('beforeunload', () => {
+            if (audioCapture) {
+                audioCapture.cleanup();
+            }
+        });
+    </script>
+</body>
+</html>

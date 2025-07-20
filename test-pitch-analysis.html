@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Análisis de Pitch - Fase 3</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        .test-panel {
+            background: #2d2d2d;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #404040;
+        }
+        
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #1976D2;
+        }
+        
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: #404040;
+        }
+        
+        .data-display {
+            font-family: monospace;
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .pitch-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .note-display {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background: #404040;
+            margin: 10px 0;
+        }
+        
+        .note-display.precision-exact {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .note-display.precision-close {
+            background: #FF9800;
+            color: white;
+        }
+        
+        .note-display.precision-near {
+            background: #FF5722;
+            color: white;
+        }
+        
+        .note-display.precision-far {
+            background: #F44336;
+            color: white;
+        }
+        
+        .precision-bar {
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(to right, #F44336, #FF9800, #4CAF50, #FF9800, #F44336);
+            border-radius: 10px;
+            position: relative;
+            margin: 10px 0;
+        }
+        
+        .precision-indicator {
+            width: 4px;
+            height: 24px;
+            background: white;
+            position: absolute;
+            top: -2px;
+            border-radius: 2px;
+            box-shadow: 0 0 5px rgba(255,255,255,0.5);
+            transition: left 0.1s ease;
+        }
+        
+        .config-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        .config-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        select, input[type="range"] {
+            padding: 5px;
+            border-radius: 3px;
+            border: 1px solid #555;
+            background: #333;
+            color: white;
+        }
+        
+        .visualization {
+            width: 100%;
+            height: 120px;
+            background: #1a1a1a;
+            border: 1px solid #404040;
+            margin: 10px 0;
+        }
+        
+        .note-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .note-item {
+            padding: 10px 5px;
+            background: #404040;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .note-item:hover {
+            background: #555;
+        }
+        
+        .note-item.active {
+            background: #2196F3;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .note-item.active.precision-exact {
+            background: #4CAF50;
+        }
+        
+        .note-item.active.precision-close {
+            background: #FF9800;
+        }
+        
+        .note-item.active.precision-near {
+            background: #FF5722;
+        }
+        
+        .note-item.active.precision-far {
+            background: #F44336;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎵 Test de Análisis de Pitch - Fase 3</h1>
+    
+    <div class="test-panel">
+        <h2>Control de Prueba</h2>
+        <button id="startTest" onclick="startPitchTest()">Iniciar Test</button>
+        <button id="stopTest" onclick="stopPitchTest()" disabled>Detener Test</button>
+        <button id="resetTest" onclick="resetTest()">Reset</button>
+        <button id="getStats" onclick="showStats()">Ver Estadísticas</button>
+        <button id="clearLog" onclick="clearLog()">Limpiar Log</button>
+    </div>
+    
+    <div class="test-panel">
+        <h2>Configuración</h2>
+        <div class="config-panel">
+            <div class="config-item">
+                <label for="octaveRange">Rango de Octavas:</label>
+                <select id="octaveRange">
+                    <option value="2-4">Octavas 2-4</option>
+                    <option value="3-5" selected>Octavas 3-5</option>
+                    <option value="2-6">Octavas 2-6</option>
+                    <option value="1-7">Octavas 1-7</option>
+                </select>
+            </div>
+            <div class="config-item">
+                <label for="pitchThreshold">Umbral de Pitch:</label>
+                <input type="range" id="pitchThreshold" min="0.1" max="0.5" value="0.2" step="0.05">
+                <span id="pitchThresholdValue">0.2</span>
+            </div>
+            <div class="config-item">
+                <label for="centsThreshold">Umbral de Cents:</label>
+                <input type="range" id="centsThreshold" min="10" max="100" value="50" step="5">
+                <span id="centsThresholdValue">50</span>
+            </div>
+            <div class="config-item">
+                <label for="useSpanish">Nombres en Español:</label>
+                <input type="checkbox" id="useSpanish" checked>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-panel">
+        <h2>Estado del Sistema</h2>
+        <div id="statusDisplay" class="status">
+            Listo para comenzar...
+        </div>
+    </div>
+    
+    <div class="test-panel">
+        <h2>Detección de Pitch y Notas</h2>
+        <div class="pitch-info">
+            <div>
+                <h3>Pitch Detectado</h3>
+                <div>
+                    <strong>Frecuencia:</strong> <span id="pitchFrequency">0</span> Hz
+                </div>
+                <div>
+                    <strong>Confianza:</strong> <span id="pitchConfidence">0</span>%
+                </div>
+                <div>
+                    <strong>Claridad:</strong> <span id="pitchClarity">0</span>%
+                </div>
+                <div>
+                    <strong>Algoritmo:</strong> <span id="pitchAlgorithm">--</span>
+                </div>
+                <div>
+                    <strong>Estable:</strong> <span id="pitchStable">No</span>
+                </div>
+            </div>
+            
+            <div>
+                <h3>Nota Musical</h3>
+                <div id="noteDisplay" class="note-display">--</div>
+                <div>
+                    <strong>Desviación:</strong> <span id="noteCents">0</span> cents
+                </div>
+                <div>
+                    <strong>Precisión:</strong> <span id="notePrecision">--</span>
+                </div>
+                <div>
+                    <strong>Octava:</strong> <span id="noteOctave">--</span>
+                </div>
+            </div>
+        </div>
+        
+        <h3>Indicador de Precisión</h3>
+        <div class="precision-bar">
+            <div id="precisionIndicator" class="precision-indicator" style="left: 50%; opacity: 0;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.8em; margin-top: 5px;">
+            <span>-50 cents</span>
+            <span>Exacto</span>
+            <span>+50 cents</span>
+        </div>
+    </div>
+    
+    <div class="test-panel">
+        <h2>Escala Musical (Octava actual)</h2>
+        <div id="noteGrid" class="note-grid"></div>
+    </div>
+    
+    <div class="test-panel">
+        <h2>Visualización de Pitch</h2>
+        <canvas id="pitchCanvas" class="visualization" width="980" height="120"></canvas>
+    </div>
+    
+    <div class="test-panel">
+        <h2>Log de Eventos</h2>
+        <div id="logDisplay" class="data-display"></div>
+    </div>
+
+    <script src="js/audioCapture.js"></script>
+    <script src="js/pitchDetector.js"></script>
+    <script src="js/noteMapper.js"></script>
+    <script>
+        let audioCapture = null;
+        let pitchDetector = null;
+        let noteMapper = null;
+        let animationId = null;
+        let logCount = 0;
+        let pitchHistory = [];
+        let noteHistory = [];
+        
+        // Inicializar interfaz
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeInterface();
+        });
+        
+        function initializeInterface() {
+            // Configurar event listeners
+            document.getElementById('octaveRange').addEventListener('change', updateOctaveRange);
+            document.getElementById('pitchThreshold').addEventListener('input', updatePitchThreshold);
+            document.getElementById('centsThreshold').addEventListener('input', updateCentsThreshold);
+            document.getElementById('useSpanish').addEventListener('change', updateLanguage);
+            
+            // Inicializar note grid
+            updateNoteGrid();
+            
+            log('Interfaz inicializada');
+        }
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDisplay = document.getElementById('logDisplay');
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : '📝';
+            
+            logDisplay.textContent += `${prefix} [${timestamp}] ${message}\n`;
+            logDisplay.scrollTop = logDisplay.scrollHeight;
+            
+            if (++logCount > 100) {
+                const lines = logDisplay.textContent.split('\n');
+                logDisplay.textContent = lines.slice(-50).join('\n');
+                logCount = 50;
+            }
+        }
+        
+        function updateStatus(message, type = 'info') {
+            const statusDisplay = document.getElementById('statusDisplay');
+            statusDisplay.textContent = message;
+            statusDisplay.style.background = type === 'error' ? '#F44336' : 
+                                          type === 'success' ? '#4CAF50' : 
+                                          type === 'warning' ? '#FF9800' : '#404040';
+        }
+        
+        async function startPitchTest() {
+            try {
+                log('Iniciando test de análisis de pitch...');
+                updateStatus('Iniciando...', 'warning');
+                
+                document.getElementById('startTest').disabled = true;
+                
+                // Inicializar captura de audio
+                audioCapture = new AudioCapture();
+                await audioCapture.initialize();
+                audioCapture.startCapture();
+                
+                // Inicializar análisis de pitch
+                const sampleRate = audioCapture.getStatus().sampleRate || 44100;
+                pitchDetector = new PitchDetector(sampleRate);
+                noteMapper = new NoteMapper();
+                
+                log(`Pitch detector inicializado con sample rate: ${sampleRate}Hz`, 'success');
+                
+                // Aplicar configuración inicial
+                applyConfiguration();
+                
+                // Iniciar visualización
+                startVisualization();
+                
+                document.getElementById('stopTest').disabled = false;
+                updateStatus('Análisis de pitch activo', 'success');
+                log('Test iniciado correctamente', 'success');
+                
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                updateStatus(`Error: ${error.message}`, 'error');
+                document.getElementById('startTest').disabled = false;
+            }
+        }
+        
+        async function stopPitchTest() {
+            try {
+                log('Deteniendo test de análisis de pitch...');
+                
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                
+                if (audioCapture) {
+                    audioCapture.stopAudioCapture();
+                    await audioCapture.cleanup();
+                    audioCapture = null;
+                }
+                
+                pitchDetector = null;
+                noteMapper = null;
+                
+                document.getElementById('startTest').disabled = false;
+                document.getElementById('stopTest').disabled = true;
+                
+                updateStatus('Test detenido');
+                log('Test detenido correctamente', 'success');
+                
+                clearDisplays();
+                
+            } catch (error) {
+                log(`Error al detener: ${error.message}`, 'error');
+            }
+        }
+        
+        function resetTest() {
+            if (pitchDetector) {
+                pitchDetector.reset();
+            }
+            pitchHistory = [];
+            noteHistory = [];
+            clearDisplays();
+            log('Sistema reseteado');
+        }
+        
+        function applyConfiguration() {
+            if (!pitchDetector || !noteMapper) return;
+            
+            const threshold = parseFloat(document.getElementById('pitchThreshold').value);
+            const centsThreshold = parseInt(document.getElementById('centsThreshold').value);
+            const useSpanish = document.getElementById('useSpanish').checked;
+            
+            pitchDetector.updateConfig({
+                threshold: threshold,
+                yinThreshold: threshold * 0.75
+            });
+            
+            noteMapper.updateConfig({
+                centsThreshold: centsThreshold,
+                useSpanishNames: useSpanish
+            });
+            
+            updateOctaveRange();
+        }
+        
+        function updateOctaveRange() {
+            const range = document.getElementById('octaveRange').value.split('-');
+            if (range.length === 2 && noteMapper) {
+                noteMapper.updateConfig({
+                    minOctave: parseInt(range[0]),
+                    maxOctave: parseInt(range[1])
+                });
+                updateNoteGrid();
+            }
+        }
+        
+        function updatePitchThreshold() {
+            const value = document.getElementById('pitchThreshold').value;
+            document.getElementById('pitchThresholdValue').textContent = value;
+            if (pitchDetector) {
+                pitchDetector.updateConfig({ threshold: parseFloat(value) });
+            }
+        }
+        
+        function updateCentsThreshold() {
+            const value = document.getElementById('centsThreshold').value;
+            document.getElementById('centsThresholdValue').textContent = value;
+            if (noteMapper) {
+                noteMapper.updateConfig({ centsThreshold: parseInt(value) });
+            }
+        }
+        
+        function updateLanguage() {
+            const useSpanish = document.getElementById('useSpanish').checked;
+            if (noteMapper) {
+                noteMapper.updateConfig({ useSpanishNames: useSpanish });
+            }
+            updateNoteGrid();
+        }
+        
+        function updateNoteGrid() {
+            const noteGrid = document.getElementById('noteGrid');
+            if (!noteGrid) return;
+            
+            noteGrid.innerHTML = '';
+            
+            // Obtener notas para la octava central
+            const range = document.getElementById('octaveRange').value.split('-');
+            const centerOctave = Math.floor((parseInt(range[0]) + parseInt(range[1])) / 2);
+            
+            const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const spanishNames = ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si'];
+            const useSpanish = document.getElementById('useSpanish').checked;
+            
+            notes.forEach((note, i) => {
+                const div = document.createElement('div');
+                div.className = 'note-item';
+                div.setAttribute('data-note', note);
+                div.textContent = useSpanish ? spanishNames[i] : note;
+                
+                div.onclick = () => {
+                    if (noteMapper) {
+                        const noteInfo = noteMapper.noteTable.find(n => 
+                            n.note === note && n.octave === centerOctave
+                        );
+                        if (noteInfo) {
+                            log(`Nota seleccionada: ${noteInfo.fullName} (${noteInfo.frequency.toFixed(2)} Hz)`);
+                        }
+                    }
+                };
+                
+                noteGrid.appendChild(div);
+            });
+        }
+        
+        function startVisualization() {
+            const canvas = document.getElementById('pitchCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            function animate() {
+                if (!audioCapture || !pitchDetector || !noteMapper) return;
+                
+                const audioData = audioCapture.getAudioData();
+                if (audioData) {
+                    // Detectar pitch
+                    const pitchResult = pitchDetector.detectPitch(audioData);
+                    updatePitchDisplay(pitchResult);
+                    
+                    // Mapear a nota
+                    let noteResult = null;
+                    if (pitchResult.isValid) {
+                        noteResult = noteMapper.frequencyToNote(pitchResult.frequency);
+                        updateNoteDisplay(noteResult);
+                    } else {
+                        clearNoteDisplay();
+                    }
+                    
+                    // Actualizar historial
+                    pitchHistory.push(pitchResult);
+                    if (noteResult) noteHistory.push(noteResult);
+                    
+                    // Mantener historial limitado
+                    if (pitchHistory.length > 300) pitchHistory.shift();
+                    if (noteHistory.length > 300) noteHistory.shift();
+                    
+                    // Dibujar visualización
+                    drawPitchVisualization(ctx);
+                }
+                
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+        
+        function updatePitchDisplay(pitchResult) {
+            document.getElementById('pitchFrequency').textContent = 
+                pitchResult.isValid ? Math.round(pitchResult.frequency) : 0;
+            document.getElementById('pitchConfidence').textContent = 
+                pitchResult.isValid ? Math.round(pitchResult.confidence * 100) : 0;
+            document.getElementById('pitchClarity').textContent = 
+                pitchResult.isValid ? Math.round(pitchResult.clarity * 100) : 0;
+            document.getElementById('pitchAlgorithm').textContent = 
+                pitchResult.algorithm || '--';
+            document.getElementById('pitchStable').textContent = 
+                pitchResult.isStable ? 'Sí' : 'No';
+        }
+        
+        function updateNoteDisplay(noteResult) {
+            const display = document.getElementById('noteDisplay');
+            display.textContent = noteResult.displayName || '--';
+            display.className = `note-display precision-${noteResult.precision || 'none'}`;
+            
+            document.getElementById('noteCents').textContent = 
+                noteResult.isValid ? Math.round(noteResult.cents) : 0;
+            document.getElementById('notePrecision').textContent = 
+                noteResult.precision || '--';
+            document.getElementById('noteOctave').textContent = 
+                noteResult.octave || '--';
+            
+            // Actualizar indicador de precisión
+            updatePrecisionIndicator(noteResult);
+            
+            // Highlight en note grid
+            highlightNoteInGrid(noteResult);
+        }
+        
+        function clearNoteDisplay() {
+            document.getElementById('noteDisplay').textContent = '--';
+            document.getElementById('noteDisplay').className = 'note-display';
+            document.getElementById('noteCents').textContent = '0';
+            document.getElementById('notePrecision').textContent = '--';
+            document.getElementById('noteOctave').textContent = '--';
+            
+            clearPrecisionIndicator();
+            clearNoteHighlights();
+        }
+        
+        function updatePrecisionIndicator(noteResult) {
+            const indicator = document.getElementById('precisionIndicator');
+            if (!noteResult.isValid) {
+                indicator.style.opacity = '0';
+                return;
+            }
+            
+            const maxCents = 50;
+            const position = Math.max(0, Math.min(100, 
+                50 + (noteResult.cents / maxCents) * 50
+            ));
+            
+            indicator.style.left = `${position}%`;
+            indicator.style.opacity = '1';
+        }
+        
+        function clearPrecisionIndicator() {
+            document.getElementById('precisionIndicator').style.opacity = '0';
+        }
+        
+        function highlightNoteInGrid(noteResult) {
+            clearNoteHighlights();
+            if (!noteResult.isValid) return;
+            
+            const noteItems = document.querySelectorAll('.note-item');
+            noteItems.forEach(item => {
+                if (item.getAttribute('data-note') === noteResult.note) {
+                    item.classList.add('active', `precision-${noteResult.precision}`);
+                }
+            });
+        }
+        
+        function clearNoteHighlights() {
+            const noteItems = document.querySelectorAll('.note-item');
+            noteItems.forEach(item => {
+                item.classList.remove('active', 'precision-exact', 'precision-close', 'precision-near', 'precision-far');
+            });
+        }
+        
+        function drawPitchVisualization(ctx) {
+            const canvas = ctx.canvas;
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            if (pitchHistory.length < 2) return;
+            
+            // Dibujar línea de pitch history
+            ctx.strokeStyle = '#2196F3';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            const maxFreq = 800;
+            const minFreq = 80;
+            
+            for (let i = 0; i < pitchHistory.length; i++) {
+                const pitch = pitchHistory[i];
+                if (pitch.isValid) {
+                    const x = (i / pitchHistory.length) * width;
+                    const y = height - ((pitch.frequency - minFreq) / (maxFreq - minFreq)) * height;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Dibujar líneas de notas de referencia
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 1;
+            const referenceFreqs = [110, 146.83, 196, 261.63, 329.63, 440, 587.33]; // A2, D3, G3, C4, E4, A4, D5
+            
+            referenceFreqs.forEach(freq => {
+                const y = height - ((freq - minFreq) / (maxFreq - minFreq)) * height;
+                if (y >= 0 && y <= height) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+            });
+        }
+        
+        function clearDisplays() {
+            document.getElementById('pitchFrequency').textContent = '0';
+            document.getElementById('pitchConfidence').textContent = '0';
+            document.getElementById('pitchClarity').textContent = '0';
+            document.getElementById('pitchAlgorithm').textContent = '--';
+            document.getElementById('pitchStable').textContent = 'No';
+            clearNoteDisplay();
+        }
+        
+        function showStats() {
+            if (!pitchDetector || !noteMapper) {
+                log('Sistema no inicializado');
+                return;
+            }
+            
+            const pitchStats = pitchDetector.getStats();
+            const noteStats = noteMapper.getStats();
+            
+            log(`Estadísticas del Pitch Detector:
+  - Último pitch: ${pitchStats.lastPitch.toFixed(2)} Hz
+  - Historial: ${pitchStats.historyLength} elementos
+  - Frames estables: ${pitchStats.stableFrames}
+  - Claridad promedio: ${(pitchStats.avgClarity * 100).toFixed(1)}%`);
+            
+            log(`Estadísticas del Note Mapper:
+  - Notas totales: ${noteStats.totalNotes}
+  - Notas naturales: ${noteStats.naturalNotes}
+  - Notas sostenidas: ${noteStats.sharpNotes}
+  - Octavas: ${noteStats.octaves}
+  - Rango: ${noteStats.frequencyRange.lowest.frequency.toFixed(2)}-${noteStats.frequencyRange.highest.frequency.toFixed(2)} Hz`);
+        }
+        
+        function clearLog() {
+            document.getElementById('logDisplay').textContent = '';
+            logCount = 0;
+        }
+        
+        // Limpiar al cerrar la página
+        window.addEventListener('beforeunload', () => {
+            if (audioCapture) {
+                audioCapture.cleanup();
+            }
+        });
+    </script>
+</body>
+</html>

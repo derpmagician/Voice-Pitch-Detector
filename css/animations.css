@@ -1,0 +1,578 @@
+/* ===== ANIMACIONES Y TRANSICIONES ===== */
+
+/* Animaciones globales */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Animaciones específicas para notas */
+@keyframes noteHit {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(76, 175, 80, 0.5);
+    }
+    50% {
+        transform: scale(1.15);
+        box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+    }
+    100% {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+    }
+}
+
+@keyframes noteClose {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes noteFar {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Animaciones para el estado de la aplicación */
+@keyframes statusPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
+}
+
+@keyframes recordingBlink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+/* Animaciones para el medidor de precisión */
+@keyframes precisionSlide {
+    from {
+        left: 50%;
+    }
+    to {
+        left: var(--target-position, 50%);
+    }
+}
+
+@keyframes precisionGlow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    }
+}
+
+/* Efectos de hover mejorados */
+@keyframes buttonHover {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-2px);
+    }
+}
+
+@keyframes buttonPress {
+    from {
+        transform: translateY(-2px) scale(1);
+    }
+    to {
+        transform: translateY(0) scale(0.98);
+    }
+}
+
+/* Animaciones de carga */
+@keyframes loading {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes loadingDots {
+    0%, 20% {
+        opacity: 0.2;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+    100% {
+        opacity: 0.2;
+        transform: scale(1);
+    }
+}
+
+/* Animaciones para errores */
+@keyframes errorShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes errorGlow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(244, 67, 54, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(244, 67, 54, 0.6);
+    }
+}
+
+/* Clases de animación */
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease-in;
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+.slide-out {
+    animation: slideOut 0.3s ease-in;
+}
+
+/* Animaciones de notas */
+.note-item.hit {
+    animation: noteHit 0.3s ease-out;
+}
+
+.note-item.close {
+    animation: noteClose 1s ease-in-out infinite;
+}
+
+.note-item.far {
+    animation: noteFar 0.8s ease-in-out infinite;
+}
+
+/* Estados de la aplicación */
+.status-light.recording {
+    animation: recordingBlink 1s ease-in-out infinite;
+}
+
+.status-indicator.active {
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+/* Precisión animada */
+.precision-indicator {
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.precision-indicator.glowing {
+    animation: precisionGlow 1.5s ease-in-out infinite;
+}
+
+/* Botones animados */
+.btn {
+    transition: all var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn:active {
+    animation: buttonPress 0.1s ease-out;
+}
+
+/* Carga y loading */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 2px solid var(--primary-color);
+    animation: loading 1s linear infinite;
+}
+
+.loading-dots {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.loading-dots span {
+    width: 8px;
+    height: 8px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    animation: loadingDots 1.4s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* Errores animados */
+.error-display {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.error-content {
+    animation: errorShake 0.6s ease-out;
+}
+
+.error-content.glowing {
+    animation: errorGlow 1s ease-in-out infinite;
+}
+
+/* Transiciones suaves para cambios de estado */
+.transition-smooth {
+    transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-fast {
+    transition: all var(--transition-fast) ease-out;
+}
+
+.transition-slow {
+    transition: all var(--transition-slow) ease-in-out;
+}
+
+/* Efectos de paralaje ligero */
+@keyframes parallaxFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.float-effect {
+    animation: parallaxFloat 4s ease-in-out infinite;
+}
+
+/* Efectos de brillo para elementos activos */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.shimmer {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+/* ========================================
+   ANIMACIONES FASE 4: VISUALIZACIONES AVANZADAS
+   ======================================== */
+
+/* Animaciones del medidor visual circular */
+@keyframes meterGlow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(33, 150, 243, 0.3);
+        filter: brightness(1);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(33, 150, 243, 0.6);
+        filter: brightness(1.1);
+    }
+}
+
+@keyframes needleSwing {
+    0% { transform: rotate(-45deg); }
+    50% { transform: rotate(0deg); }
+    100% { transform: rotate(45deg); }
+}
+
+@keyframes frequencyPulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 4px 12px rgba(76, 175, 80, 0.6));
+    }
+}
+
+/* Animaciones del panel de notas interactivo */
+@keyframes noteActivate {
+    0% {
+        transform: scale(1);
+        background: #2a2a2a;
+        border-color: #666;
+    }
+    50% {
+        transform: scale(1.1);
+        background: #1a1a1a;
+    }
+    100% {
+        transform: scale(1);
+        background: #1a1a1a;
+        border-color: currentColor;
+    }
+}
+
+@keyframes noteGlow {
+    0% {
+        opacity: 0;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.4;
+        transform: scale(1.3);
+    }
+    100% {
+        opacity: 0.2;
+        transform: scale(1.2);
+    }
+}
+
+@keyframes notePulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.05);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    75% {
+        transform: scale(1.05);
+    }
+}
+
+/* Animaciones de precisión */
+@keyframes precisionPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 10px currentColor;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.3);
+        box-shadow: 0 0 25px currentColor;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 15px currentColor;
+    }
+}
+
+@keyframes precisionExact {
+    0%, 100% {
+        box-shadow: 0 0 15px #4CAF50;
+        background: #4CAF50;
+    }
+    50% {
+        box-shadow: 0 0 30px #4CAF50, 0 0 60px #4CAF50;
+        background: #66BB6A;
+    }
+}
+
+@keyframes precisionClose {
+    0%, 100% {
+        box-shadow: 0 0 10px #FF9800;
+        background: #FF9800;
+    }
+    50% {
+        box-shadow: 0 0 20px #FF9800;
+        background: #FFB74D;
+    }
+}
+
+@keyframes precisionFar {
+    0%, 100% {
+        box-shadow: 0 0 8px #F44336;
+        background: #F44336;
+    }
+    50% {
+        box-shadow: 0 0 16px #F44336;
+        background: #EF5350;
+    }
+}
+
+/* Animaciones de canvas */
+@keyframes canvasFadeIn {
+    from {
+        opacity: 0;
+        filter: blur(5px);
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        filter: blur(0);
+        transform: scale(1);
+    }
+}
+
+/* Clases de animación aplicables para Fase 4 */
+.animate-meter-glow {
+    animation: meterGlow 2s ease-in-out infinite;
+}
+
+.animate-frequency-pulse {
+    animation: frequencyPulse 1.5s ease-in-out infinite;
+}
+
+.animate-note-activate {
+    animation: noteActivate 0.4s ease-out forwards;
+}
+
+.animate-note-pulse {
+    animation: notePulse 0.8s ease-in-out infinite;
+}
+
+.animate-note-glow {
+    animation: noteGlow 0.6s ease-out forwards;
+}
+
+.animate-precision-pulse {
+    animation: precisionPulse 0.5s ease-out;
+}
+
+.animate-precision-exact {
+    animation: precisionExact 1s ease-in-out infinite;
+}
+
+.animate-precision-close {
+    animation: precisionClose 1.5s ease-in-out infinite;
+}
+
+.animate-precision-far {
+    animation: precisionFar 2s ease-in-out infinite;
+}
+
+.animate-canvas-fade-in {
+    animation: canvasFadeIn 0.8s ease-out forwards;
+}
+
+/* Mejoras de performance */
+.gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+/* Desactivar animaciones para usuarios que prefieren movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .status-light.recording {
+        animation: none;
+        opacity: 1;
+    }
+    
+    .note-item.close,
+    .note-item.far {
+        animation: none;
+    }
+    
+    /* Desactivar animaciones específicas de Fase 4 */
+    .animate-meter-glow,
+    .animate-frequency-pulse,
+    .animate-note-pulse,
+    .animate-precision-exact,
+    .animate-precision-close,
+    .animate-precision-far {
+        animation: none !important;
+    }
+}

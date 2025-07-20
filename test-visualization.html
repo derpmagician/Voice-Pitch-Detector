@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Fase 4 - Visualizaciones</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/meter.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        /* Estilos específicos para pruebas de visualización */
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 10px;
+        }
+        
+        .test-section h2 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .test-btn {
+            padding: 8px 16px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .test-btn:hover {
+            background: #1976D2;
+        }
+        
+        .test-btn.active {
+            background: #4CAF50;
+        }
+        
+        .side-by-side {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+        
+        .visualization-container {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 450px;
+        }
+        
+        .test-info {
+            background: #333;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #ccc;
+        }
+        
+        .frequency-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .frequency-input input[type="range"] {
+            flex: 1;
+        }
+        
+        .frequency-input span {
+            min-width: 80px;
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .note-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            background: #444;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .animation-demo {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .demo-note {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #666;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .demo-note:hover {
+            transform: scale(1.1);
+            border-color: #888;
+        }
+        
+        .demo-note.active {
+            border-color: #4CAF50;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes precision-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); box-shadow: 0 0 20px currentColor; }
+            100% { transform: scale(1); }
+        }
+        
+        .precision-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: relative;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        
+        .precision-exact {
+            background-color: #4CAF50 !important;
+        }
+        
+        .precision-close {
+            background-color: #FF9800 !important;
+        }
+        
+        .precision-far {
+            background-color: #F44336 !important;
+        }
+
+        @media (max-width: 768px) {
+            .side-by-side {
+                grid-template-columns: 1fr;
+            }
+            
+            .test-controls {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <header style="text-align: center; margin-bottom: 40px;">
+            <h1>🎨 Prueba Fase 4: Visualizaciones</h1>
+            <p>Prueba de componentes visuales avanzados del Detector de Voz</p>
+        </header>
+
+        <!-- Prueba del Medidor Visual Circular -->
+        <section class="test-section">
+            <h2>📊 Medidor Visual Circular</h2>
+            <div class="test-controls">
+                <button class="test-btn" onclick="testMeter.simulateNote('C4')">Do (C4)</button>
+                <button class="test-btn" onclick="testMeter.simulateNote('D4')">Re (D4)</button>
+                <button class="test-btn" onclick="testMeter.simulateNote('E4')">Mi (E4)</button>
+                <button class="test-btn" onclick="testMeter.simulateNote('F4')">Fa (F4)</button>
+                <button class="test-btn" onclick="testMeter.simulateNote('G4')">Sol (G4)</button>
+                <button class="test-btn" onclick="testMeter.simulateNote('A4')">La (A4)</button>
+                <button class="test-btn" onclick="testMeter.simulateNote('B4')">Si (B4)</button>
+                <button class="test-btn" onclick="testMeter.reset()" style="background: #F44336;">Reset</button>
+            </div>
+            
+            <div class="frequency-input">
+                <label>Frecuencia:</label>
+                <input type="range" id="frequencySlider" min="80" max="800" value="440" 
+                       oninput="testMeter.updateFrequency(this.value)">
+                <span id="frequencyValue">440 Hz</span>
+            </div>
+            
+            <div class="side-by-side">
+                <div class="visualization-container">
+                    <canvas id="testMeterCanvas" width="400" height="400" style="max-width: 100%; height: auto;"></canvas>
+                </div>
+                
+                <div>
+                    <h3>Información del Medidor</h3>
+                    <div class="test-info">
+                        <div>Estado: <span id="meterStatus">Inactivo</span></div>
+                        <div>Frecuencia: <span id="meterFrequency">0</span> Hz</div>
+                        <div>Nota: <span id="meterNote">--</span></div>
+                        <div>Precisión: <span id="meterPrecision">--</span></div>
+                        <div>Cents: <span id="meterCents">0</span>¢</div>
+                    </div>
+                    
+                    <h3>Controles Avanzados</h3>
+                    <div class="frequency-input">
+                        <label>Velocidad animación:</label>
+                        <input type="range" min="0.05" max="0.5" step="0.05" value="0.15" 
+                               oninput="testMeter.updateAnimationSpeed(this.value)">
+                        <span id="animationSpeed">0.15</span>
+                    </div>
+                    
+                    <div class="test-controls">
+                        <button class="test-btn" onclick="testMeter.toggleGlow()">Toggle Glow</button>
+                        <button class="test-btn" onclick="testMeter.simulateSweep()">Barrido</button>
+                        <button class="test-btn" onclick="testMeter.simulateVibrato()">Vibrato</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Prueba del Panel de Notas -->
+        <section class="test-section">
+            <h2>🎵 Panel de Notas Interactivo</h2>
+            <div class="test-controls">
+                <button class="test-btn" onclick="testNotes.activateRandomNote()">Nota Aleatoria</button>
+                <button class="test-btn" onclick="testNotes.simulateScale()">Escala</button>
+                <button class="test-btn" onclick="testNotes.simulateChord()">Acorde</button>
+                <button class="test-btn" onclick="testNotes.testPrecision()">Test Precisión</button>
+                <button class="test-btn" onclick="testNotes.reset()" style="background: #F44336;">Reset</button>
+            </div>
+            
+            <div class="side-by-side">
+                <div class="visualization-container">
+                    <div id="testNotesPanel"></div>
+                </div>
+                
+                <div>
+                    <h3>Estadísticas del Panel</h3>
+                    <div class="note-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Total Notas</div>
+                            <div class="stat-value" id="totalNotes">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Nota Activa</div>
+                            <div class="stat-value" id="activeNote">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Precisión</div>
+                            <div class="stat-value" id="notePrecision">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Octava</div>
+                            <div class="stat-value" id="noteOctave">--</div>
+                        </div>
+                    </div>
+                    
+                    <h3>Demo Animaciones</h3>
+                    <div class="animation-demo">
+                        <div class="demo-note" onclick="this.classList.toggle('active')">C</div>
+                        <div class="demo-note" onclick="this.classList.toggle('active')">D</div>
+                        <div class="demo-note" onclick="this.classList.toggle('active')">E</div>
+                        <div class="demo-note" onclick="this.classList.toggle('active')">F</div>
+                        <div class="demo-note" onclick="this.classList.toggle('active')">G</div>
+                        <div class="demo-note" onclick="this.classList.toggle('active')">A</div>
+                        <div class="demo-note" onclick="this.classList.toggle('active')">B</div>
+                    </div>
+                    
+                    <h3>Test Indicador Precisión</h3>
+                    <div style="position: relative; height: 40px; background: #333; border-radius: 20px; margin: 10px 0;">
+                        <div class="precision-indicator" id="testPrecisionIndicator" 
+                             style="position: absolute; top: 50%; left: 50%; transform: translateY(-50%);"></div>
+                        <div style="position: absolute; top: 50%; left: 20%; transform: translateY(-50%); color: #ccc; font-size: 12px;">Lejos</div>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translateY(-50%); color: #ccc; font-size: 12px;">Exacto</div>
+                        <div style="position: absolute; top: 50%; right: 20%; transform: translateY(-50%); color: #ccc; font-size: 12px;">Cerca</div>
+                    </div>
+                    <div class="test-controls">
+                        <button class="test-btn" onclick="testPrecision('exact')">Exacto</button>
+                        <button class="test-btn" onclick="testPrecision('close')">Cerca</button>
+                        <button class="test-btn" onclick="testPrecision('far')">Lejos</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Análisis en Tiempo Real -->
+        <section class="test-section">
+            <h2>🔬 Análisis Visual en Tiempo Real</h2>
+            <div class="test-controls">
+                <button class="test-btn" id="realTimeBtn" onclick="toggleRealTime()">Iniciar Captura</button>
+                <button class="test-btn" onclick="clearStats()">Limpiar Stats</button>
+            </div>
+            
+            <div class="side-by-side">
+                <div class="visualization-container">
+                    <h3>Medidor y Notas Integrados</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center;">
+                        <canvas id="realTimeMeterCanvas" width="300" height="300" style="max-width: 100%; height: auto;"></canvas>
+                        <div id="realTimeNotesPanel" style="max-height: 300px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>Estadísticas de Sesión</h3>
+                    <div class="test-info">
+                        <div>Duración: <span id="sessionDuration">0</span>s</div>
+                        <div>Notas detectadas: <span id="notesDetected">0</span></div>
+                        <div>Precisión promedio: <span id="avgPrecision">0</span>%</div>
+                        <div>Nota más frecuente: <span id="mostFrequentNote">--</span></div>
+                        <div>FPS visualización: <span id="visualFPS">0</span></div>
+                    </div>
+                    
+                    <h3>Historial de Notas</h3>
+                    <div id="noteHistory" style="background: #444; padding: 10px; border-radius: 5px; height: 150px; overflow-y: auto; font-family: monospace; font-size: 12px;"></div>
+                </div>
+            </div>
+        </section>
+
+        <footer style="text-align: center; margin-top: 40px; color: #666;">
+            <p>Fase 4 - Visualizaciones Avanzadas | Detector de Voz y Notas Musicales</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/audioCapture.js"></script>
+    <script src="js/pitchDetector.js"></script>
+    <script src="js/noteMapper.js"></script>
+    <script src="js/visualMeter.js"></script>
+    <script src="js/noteDisplay.js"></script>
+
+    <script>
+        // Variables globales para las pruebas
+        let testMeter = null;
+        let testNotes = null;
+        let realTimeMeter = null;
+        let realTimeNotes = null;
+        let realTimeActive = false;
+        let sessionStats = {
+            startTime: null,
+            notesDetected: 0,
+            precisionSum: 0,
+            precisionCount: 0,
+            noteFrequency: {},
+            frameCount: 0,
+            lastFPSUpdate: 0
+        };
+
+        // Inicializar pruebas
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTests();
+        });
+
+        function initializeTests() {
+            console.log('🎨 Inicializando pruebas de visualización...');
+            
+            try {
+                // Inicializar medidor de prueba
+                testMeter = new VisualMeter('testMeterCanvas', {
+                    minFrequency: 80,
+                    maxFrequency: 800,
+                    animationSpeed: 0.15,
+                    glowEffect: true
+                });
+
+                // Agregar métodos de prueba al medidor
+                testMeter.simulateNote = function(noteName) {
+                    const frequencies = {
+                        'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23,
+                        'G4': 392.00, 'A4': 440.00, 'B4': 493.88
+                    };
+                    
+                    const freq = frequencies[noteName];
+                    if (freq) {
+                        const pitchData = { frequency: freq, isValid: true, confidence: 0.9 };
+                        const noteData = { note: noteName.charAt(0), octave: 4, frequency: freq, precision: 'exact', cents: Math.random() * 10 - 5 };
+                        this.update(pitchData, noteData, 0.7);
+                        updateMeterInfo(pitchData, noteData);
+                    }
+                };
+
+                testMeter.updateFrequency = function(freq) {
+                    freq = parseFloat(freq);
+                    document.getElementById('frequencyValue').textContent = freq + ' Hz';
+                    
+                    const pitchData = { frequency: freq, isValid: true, confidence: 0.8 };
+                    const mockNote = { note: 'A', octave: 4, frequency: freq, precision: 'close', cents: Math.random() * 20 - 10 };
+                    this.update(pitchData, mockNote, 0.6);
+                    updateMeterInfo(pitchData, mockNote);
+                };
+
+                testMeter.updateAnimationSpeed = function(speed) {
+                    speed = parseFloat(speed);
+                    this.updateConfig({ animationSpeed: speed });
+                    document.getElementById('animationSpeed').textContent = speed;
+                };
+
+                testMeter.toggleGlow = function() {
+                    const currentConfig = this.getConfig();
+                    this.updateConfig({ glowEffect: !currentConfig.glowEffect });
+                };
+
+                testMeter.simulateSweep = function() {
+                    let freq = 200;
+                    const interval = setInterval(() => {
+                        freq += 10;
+                        if (freq > 600) {
+                            clearInterval(interval);
+                            return;
+                        }
+                        const pitchData = { frequency: freq, isValid: true, confidence: 0.7 };
+                        const mockNote = { note: 'A', octave: 4, frequency: freq, precision: 'far', cents: 0 };
+                        this.update(pitchData, mockNote, 0.5);
+                        updateMeterInfo(pitchData, mockNote);
+                    }, 50);
+                };
+
+                testMeter.simulateVibrato = function() {
+                    const baseFreq = 440;
+                    let phase = 0;
+                    const interval = setInterval(() => {
+                        phase += 0.3;
+                        const freq = baseFreq + Math.sin(phase) * 20;
+                        const pitchData = { frequency: freq, isValid: true, confidence: 0.8 };
+                        const mockNote = { note: 'A', octave: 4, frequency: freq, precision: 'exact', cents: Math.sin(phase) * 5 };
+                        this.update(pitchData, mockNote, 0.8);
+                        updateMeterInfo(pitchData, mockNote);
+                        
+                        if (phase > Math.PI * 8) { // 4 ciclos completos
+                            clearInterval(interval);
+                        }
+                    }, 50);
+                };
+
+                // Inicializar panel de notas
+                testNotes = new NoteDisplay('testNotesPanel', {
+                    octaveRange: [3, 5],
+                    showFrequencies: true,
+                    showCents: true
+                });
+
+                // Agregar métodos de prueba al panel
+                testNotes.activateRandomNote = function() {
+                    const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+                    const octaves = [3, 4, 5];
+                    const precisions = ['exact', 'close', 'far'];
+                    
+                    const note = notes[Math.floor(Math.random() * notes.length)];
+                    const octave = octaves[Math.floor(Math.random() * octaves.length)];
+                    const precision = precisions[Math.floor(Math.random() * precisions.length)];
+                    
+                    const mockNote = { 
+                        note: note, 
+                        octave: octave, 
+                        frequency: 440 * Math.pow(2, (note.charCodeAt(0) - 65) / 12),
+                        precision: precision,
+                        cents: Math.random() * 100 - 50
+                    };
+                    
+                    this.update(mockNote, { precision, cents: mockNote.cents });
+                    updateNotesInfo();
+                };
+
+                testNotes.simulateScale = function() {
+                    const scale = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'];
+                    let index = 0;
+                    
+                    const playNext = () => {
+                        if (index < scale.length) {
+                            const noteName = scale[index];
+                            const note = noteName.charAt(0);
+                            const octave = parseInt(noteName.charAt(1));
+                            
+                            const mockNote = {
+                                note: note,
+                                octave: octave,
+                                frequency: 261.63 * Math.pow(2, index / 12),
+                                precision: 'exact',
+                                cents: 0
+                            };
+                            
+                            this.update(mockNote, { precision: 'exact', cents: 0 });
+                            updateNotesInfo();
+                            
+                            index++;
+                            setTimeout(playNext, 500);
+                        }
+                    };
+                    
+                    playNext();
+                };
+
+                testNotes.simulateChord = function() {
+                    const chord = [
+                        { note: 'C', octave: 4, frequency: 261.63 },
+                        { note: 'E', octave: 4, frequency: 329.63 },
+                        { note: 'G', octave: 4, frequency: 392.00 }
+                    ];
+                    
+                    chord.forEach((noteData, i) => {
+                        setTimeout(() => {
+                            const mockNote = {
+                                ...noteData,
+                                precision: 'exact',
+                                cents: 0
+                            };
+                            this.update(mockNote, { precision: 'exact', cents: 0 });
+                            updateNotesInfo();
+                        }, i * 200);
+                    });
+                };
+
+                testNotes.testPrecision = function() {
+                    const precisions = ['exact', 'close', 'far'];
+                    let index = 0;
+                    
+                    const testNext = () => {
+                        if (index < precisions.length) {
+                            const precision = precisions[index];
+                            const cents = precision === 'exact' ? 0 : 
+                                         precision === 'close' ? 25 : 45;
+                            
+                            const mockNote = {
+                                note: 'A',
+                                octave: 4,
+                                frequency: 440,
+                                precision: precision,
+                                cents: cents
+                            };
+                            
+                            this.update(mockNote, { precision, cents });
+                            updateNotesInfo();
+                            
+                            index++;
+                            setTimeout(testNext, 1000);
+                        }
+                    };
+                    
+                    testNext();
+                };
+
+                // Inicializar componentes en tiempo real
+                initializeRealTime();
+                
+                console.log('✅ Pruebas de visualización inicializadas');
+
+            } catch (error) {
+                console.error('❌ Error inicializando pruebas:', error);
+            }
+        }
+
+        function initializeRealTime() {
+            try {
+                realTimeMeter = new VisualMeter('realTimeMeterCanvas', {
+                    width: 300,
+                    height: 300,
+                    minFrequency: 100,
+                    maxFrequency: 600
+                });
+
+                realTimeNotes = new NoteDisplay('realTimeNotesPanel', {
+                    octaveRange: [3, 5],
+                    showFrequencies: false
+                });
+
+                console.log('🔬 Componentes de tiempo real inicializados');
+            } catch (error) {
+                console.error('❌ Error inicializando tiempo real:', error);
+            }
+        }
+
+        function updateMeterInfo(pitchData, noteData) {
+            document.getElementById('meterStatus').textContent = 'Activo';
+            document.getElementById('meterFrequency').textContent = Math.round(pitchData.frequency);
+            document.getElementById('meterNote').textContent = noteData.note + noteData.octave;
+            document.getElementById('meterPrecision').textContent = noteData.precision;
+            document.getElementById('meterCents').textContent = Math.round(noteData.cents);
+        }
+
+        function updateNotesInfo() {
+            if (testNotes) {
+                const stats = testNotes.getStats();
+                document.getElementById('totalNotes').textContent = stats.totalNotes;
+                document.getElementById('activeNote').textContent = stats.currentNote ? 
+                    stats.currentNote.note + stats.currentNote.octave : '--';
+                document.getElementById('notePrecision').textContent = stats.currentPrecision;
+                document.getElementById('noteOctave').textContent = stats.currentNote ? 
+                    stats.currentNote.octave : '--';
+            }
+        }
+
+        function testPrecision(precision) {
+            const indicator = document.getElementById('testPrecisionIndicator');
+            const colors = {
+                'exact': '#4CAF50',
+                'close': '#FF9800',
+                'far': '#F44336'
+            };
+            
+            indicator.style.opacity = '1';
+            indicator.style.backgroundColor = colors[precision];
+            indicator.className = `precision-indicator precision-${precision}`;
+            
+            if (precision === 'exact') {
+                indicator.style.animation = 'precision-pulse 0.5s ease-out';
+                setTimeout(() => {
+                    indicator.style.animation = '';
+                }, 500);
+            }
+        }
+
+        function toggleRealTime() {
+            const btn = document.getElementById('realTimeBtn');
+            
+            if (!realTimeActive) {
+                realTimeActive = true;
+                btn.textContent = 'Parar Captura';
+                btn.style.background = '#F44336';
+                startRealTimeSimulation();
+                sessionStats.startTime = Date.now();
+            } else {
+                realTimeActive = false;
+                btn.textContent = 'Iniciar Captura';
+                btn.style.background = '#2196F3';
+            }
+        }
+
+        function startRealTimeSimulation() {
+            if (!realTimeActive) return;
+            
+            // Simular datos de audio aleatorios
+            const frequency = 200 + Math.random() * 400;
+            const note = ['C', 'D', 'E', 'F', 'G', 'A', 'B'][Math.floor(Math.random() * 7)];
+            const octave = 3 + Math.floor(Math.random() * 3);
+            const precision = Math.random() < 0.3 ? 'exact' : Math.random() < 0.6 ? 'close' : 'far';
+            const cents = precision === 'exact' ? Math.random() * 10 - 5 : 
+                         precision === 'close' ? Math.random() * 30 - 15 : 
+                         Math.random() * 60 - 30;
+
+            const pitchData = { frequency, isValid: true, confidence: Math.random() };
+            const noteData = { note, octave, frequency, precision, cents };
+
+            // Actualizar visualizaciones
+            if (realTimeMeter) {
+                realTimeMeter.update(pitchData, noteData, Math.random());
+            }
+            
+            if (realTimeNotes) {
+                realTimeNotes.update(noteData, { precision, cents });
+            }
+
+            // Actualizar estadísticas
+            updateSessionStats(noteData);
+
+            // Continuar simulación
+            setTimeout(() => startRealTimeSimulation(), 100 + Math.random() * 200);
+        }
+
+        function updateSessionStats(noteData) {
+            sessionStats.notesDetected++;
+            sessionStats.frameCount++;
+            
+            // Actualizar precisión promedio
+            const precisionValue = noteData.precision === 'exact' ? 100 : 
+                                  noteData.precision === 'close' ? 70 : 40;
+            sessionStats.precisionSum += precisionValue;
+            sessionStats.precisionCount++;
+            
+            // Actualizar frecuencia de notas
+            const noteKey = noteData.note + noteData.octave;
+            sessionStats.noteFrequency[noteKey] = (sessionStats.noteFrequency[noteKey] || 0) + 1;
+            
+            // Actualizar UI cada segundo
+            if (Date.now() - sessionStats.lastFPSUpdate > 1000) {
+                const duration = Math.round((Date.now() - sessionStats.startTime) / 1000);
+                const avgPrecision = Math.round(sessionStats.precisionSum / sessionStats.precisionCount);
+                const fps = Math.round(sessionStats.frameCount / (duration || 1));
+                
+                // Encontrar nota más frecuente
+                let mostFrequent = '--';
+                let maxCount = 0;
+                for (const [note, count] of Object.entries(sessionStats.noteFrequency)) {
+                    if (count > maxCount) {
+                        maxCount = count;
+                        mostFrequent = note;
+                    }
+                }
+                
+                document.getElementById('sessionDuration').textContent = duration;
+                document.getElementById('notesDetected').textContent = sessionStats.notesDetected;
+                document.getElementById('avgPrecision').textContent = avgPrecision;
+                document.getElementById('mostFrequentNote').textContent = mostFrequent;
+                document.getElementById('visualFPS').textContent = fps;
+                
+                // Agregar al historial
+                const historyDiv = document.getElementById('noteHistory');
+                const timestamp = new Date().toLocaleTimeString();
+                historyDiv.innerHTML += `<div>${timestamp}: ${noteData.note}${noteData.octave} (${noteData.precision}) ${Math.round(noteData.cents)}¢</div>`;
+                historyDiv.scrollTop = historyDiv.scrollHeight;
+                
+                sessionStats.lastFPSUpdate = Date.now();
+                sessionStats.frameCount = 0;
+            }
+        }
+
+        function clearStats() {
+            sessionStats = {
+                startTime: Date.now(),
+                notesDetected: 0,
+                precisionSum: 0,
+                precisionCount: 0,
+                noteFrequency: {},
+                frameCount: 0,
+                lastFPSUpdate: Date.now()
+            };
+            
+            document.getElementById('sessionDuration').textContent = '0';
+            document.getElementById('notesDetected').textContent = '0';
+            document.getElementById('avgPrecision').textContent = '0';
+            document.getElementById('mostFrequentNote').textContent = '--';
+            document.getElementById('visualFPS').textContent = '0';
+            document.getElementById('noteHistory').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
